@@ -26,7 +26,7 @@ class AiComponent(Component):
 
     def _attack(self) -> None:
         if self._target:
-            self._game_object.requireComponent(
+            self._game_object.require_component(
                 MeleeComponent).attack(self._target)
 
     def _move(self) -> None:
@@ -34,9 +34,10 @@ class AiComponent(Component):
             return
 
         game = self.game_object.game
-        target_position_cmp = self._target.requireComponent(PositionComponent)
-        position_cmp = self.game_object.requireComponent(PositionComponent)
-        initiative_cmp = self.game_object.requireComponent(InitiativeComponent)
+        target_position_cmp = self._target.require_component(PositionComponent)
+        position_cmp = self.game_object.require_component(PositionComponent)
+        initiative_cmp = self.game_object.require_component(
+            InitiativeComponent)
 
         while initiative_cmp.can_do():
 
@@ -51,7 +52,7 @@ class AiComponent(Component):
                             move_point = None
                             return
 
-                        if obj.hasTag('enemy') and not obj.requireComponent(VitalityComponent).is_dead:
+                        if obj.has_tag('enemy') and not obj.require_component(VitalityComponent).is_dead:
                             break
 
                     else:
@@ -63,12 +64,13 @@ class AiComponent(Component):
                             move_point = point
 
                 if move_point:
-                    move_cmp = self.game_object.requireComponent(MoveComponent)
+                    move_cmp = self.game_object.require_component(
+                        MoveComponent)
                     move_cmp.move_to(move_point.x, move_point.y)
 
             initiative_cmp.do(_do)
 
     async def update(self) -> None:
-        if self._game_object.requireComponent(VitalityComponent).is_dead:
+        if self._game_object.require_component(VitalityComponent).is_dead:
             return
         self._move()

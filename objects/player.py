@@ -33,10 +33,10 @@ class Player(GameObject[PlayerModel]):
         ]
 
     def get_state(self) -> PlayerModel:
-        position_component = self.requireComponent(PositionComponent)
-        vitality_component = self.requireComponent(VitalityComponent)
-        exp_component = self.requireComponent(ExperienceComponent)
-        status_component = self.requireComponent(StatusComponent)
+        position_component = self.require_component(PositionComponent)
+        vitality_component = self.require_component(VitalityComponent)
+        exp_component = self.require_component(ExperienceComponent)
+        status_component = self.require_component(StatusComponent)
         return PlayerModel(
             name=self.name,
             tags=self.tags,

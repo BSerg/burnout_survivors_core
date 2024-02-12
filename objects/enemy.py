@@ -23,9 +23,9 @@ class Enemy(GameObject[EnemyModel]):
         ])
 
     def get_state(self) -> EnemyModel:
-        position_component = self.requireComponent(PositionComponent)
-        vitality_component = self.requireComponent(VitalityComponent)
-        status_component = self.requireComponent(StatusComponent)
+        position_component = self.require_component(PositionComponent)
+        vitality_component = self.require_component(VitalityComponent)
+        status_component = self.require_component(StatusComponent)
         return EnemyModel(
             name=self.name,
             tags=self.tags,

@@ -62,7 +62,7 @@ def render_game(state: GameModel):
                         if i == enemy.position.x and k == enemy.position.y:
                             if enemy.status == 'damaged':
                                 row.append('x')
-                            else:    
+                            else:
                                 row.append('e')
                             break
                     else:
@@ -100,7 +100,7 @@ def merge_state(state: GameModel, new_state: GameModel):
 def main():
     game = create_game(test_config)
 
-    player = list(game.objects.findByTag('player'))[0]
+    player = list(game.objects.find_by_tag('player'))[0]
 
     for i in range(3):
         config = test_enemy_config.model_copy()
@@ -108,9 +108,9 @@ def main():
         config.position = Point(x=random.randint(-5, 5),
                                 y=random.randint(-5, 5))
         enemy = create_enemy(game, config)
-        enemy.requireComponent(
+        enemy.require_component(
             InitiativeComponent).initiative_accumulator = random.random()
-        enemy.requireComponent(AiComponent).target = player
+        enemy.require_component(AiComponent).target = player
         game.objects.add(enemy)
 
     _state: GameModel = game.get_state(updated_only=False)

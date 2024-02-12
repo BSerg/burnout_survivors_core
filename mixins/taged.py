@@ -11,5 +11,5 @@ class TagsMixin(ABC):
     def tags(self):
         return self._tags
 
-    def hasTag(self, tag: str) -> bool:
+    def has_tag(self, tag: str) -> bool:
         return tag in self.tags

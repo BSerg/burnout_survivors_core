@@ -18,13 +18,13 @@ class MeleeWeapon(Weapon):
         return self._damage
 
     def can_attack(self, target: GameObject) -> bool:
-        target_status = target.requireComponent(StatusComponent).status
+        target_status = target.require_component(StatusComponent).status
 
         if target_status == Status.DEAD:
             return False
 
-        target_position = target.requireComponent(PositionComponent).position
-        position = self.owner.requireComponent(PositionComponent).position
+        target_position = target.require_component(PositionComponent).position
+        position = self.owner.require_component(PositionComponent).position
 
         return get_distance_between(position, target_position) <= 1
 
@@ -32,7 +32,7 @@ class MeleeWeapon(Weapon):
         if not self.can_attack(target):
             return
 
-        target_vitality_component = target.requireComponent(VitalityComponent)
+        target_vitality_component = target.require_component(VitalityComponent)
         target_vitality_component.damage(self._damage)
 
     def get_state(self) -> MeleeWeaponModel:

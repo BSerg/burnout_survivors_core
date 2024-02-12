@@ -13,19 +13,20 @@ def create_player(game: Game, config: PlayerConfig) -> Player:
     player = Player(config.name, game)
 
     # POSITION
-    player.requireComponent(PositionComponent).position = config.position
+    player.require_component(PositionComponent).position = config.position
 
     # VITALITY
-    vitality_component = player.requireComponent(VitalityComponent)
+    vitality_component = player.require_component(VitalityComponent)
     vitality_component.health = config.health
     vitality_component.max_health = config.health
 
     # INITIATIVE
-    player.requireComponent(InitiativeComponent).initiative = config.initiative
+    player.require_component(
+        InitiativeComponent).initiative = config.initiative
 
     # WEAPON
     weapon = create_weapon(player, config.weapon)
     weapon.owner = player
-    player.requireComponent(MeleeComponent).weapon = weapon
+    player.require_component(MeleeComponent).weapon = weapon
 
     return player

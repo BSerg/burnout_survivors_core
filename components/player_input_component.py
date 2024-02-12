@@ -23,10 +23,10 @@ class PlayerInputComponent(Component):
         self._act()
 
     def _act(self) -> None:
-        position_component = self._game_object.requireComponent(
+        position_component = self._game_object.require_component(
             PositionComponent)
-        move_component = self._game_object.requireComponent(MoveComponent)
-        melee_component = self._game_object.requireComponent(MeleeComponent)
+        move_component = self._game_object.require_component(MoveComponent)
+        melee_component = self._game_object.require_component(MeleeComponent)
 
         target_point = None
 
@@ -48,8 +48,8 @@ class PlayerInputComponent(Component):
                 target_point)
 
             for obj in objects:
-                if obj.hasTag('enemy'):
-                    obj_vitality_component = obj.findComponent(
+                if obj.has_tag('enemy'):
+                    obj_vitality_component = obj.find_component(
                         VitalityComponent)
 
                     if not obj_vitality_component:
@@ -62,7 +62,7 @@ class PlayerInputComponent(Component):
                     target_point = None
 
                 # TODO implement healing potion
-                if obj.hasTag('potion'):
+                if obj.has_tag('potion'):
                     continue
 
         if target_point:

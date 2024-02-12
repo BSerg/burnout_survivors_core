@@ -41,13 +41,13 @@ class GameObject(UniqueNameMixin, GameMixin, TagsMixin, SerializerMixin[T]):
     def updated(self, value: bool) -> None:
         self._updated = value
 
-    def findComponent(self, cls: Type[C]) -> C | None:
+    def find_component(self, cls: Type[C]) -> C | None:
         for component in self._components:
             if isinstance(component, cls):
                 return component
 
-    def requireComponent(self, cls: Type[C]) -> C:
-        component = self.findComponent(cls)
+    def require_component(self, cls: Type[C]) -> C:
+        component = self.find_component(cls)
         if not component:
             raise Exception(f'{cls.__name__} is required')
         return component
@@ -81,10 +81,10 @@ class GameObjectGroup(GameObject[T]):
                 self._objects_by_tag[tag].remove(obj)
             del obj
 
-    def findByName(self, name: str) -> GameObject | None:
+    def find_by_name(self, name: str) -> GameObject | None:
         return self._objects_by_name.get(name)
 
-    def findByTag(self, tag: str) -> set[GameObject]:
+    def find_by_tag(self, tag: str) -> set[GameObject]:
         return self._objects_by_tag.get(tag) or set()
 
     def __iter__(self):

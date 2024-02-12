@@ -12,7 +12,7 @@ class VitalityComponent(Component):
     @property
     def health(self) -> float:
         return self._health
-    
+
     @health.setter
     def health(self, value: float) -> None:
         self._health = value
@@ -20,11 +20,11 @@ class VitalityComponent(Component):
     @property
     def max_health(self) -> float:
         return self._max_health
-    
+
     @max_health.setter
     def max_health(self, value: float) -> None:
         self._max_health = value
-        
+
     @property
     def is_dead(self) -> bool:
         return self._health <= 0
@@ -35,18 +35,18 @@ class VitalityComponent(Component):
 
     def damage(self, value: float) -> None:
         self._health = max(self._health - value, 0)
-        
+
         self._game_object.updated = True
-        
-        status_component = self._game_object.findComponent(StatusComponent)
+
+        status_component = self._game_object.find_component(StatusComponent)
         if status_component:
             status_component.status = Status.DAMAGED.value
-    
+
         if self._health > 0:
-            self._game_object.game.log(f'{self._game_object.name} got damage {value}HP')
+            self._game_object.game.log(
+                f'{self._game_object.name} got damage {value}HP')
         else:
             self._game_object.game.log(f'{self._game_object.name} is dead')
-            
 
     def increase_max_health(self, value: float) -> None:
         self._max_health += value

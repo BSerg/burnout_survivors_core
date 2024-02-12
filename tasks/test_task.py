@@ -19,7 +19,7 @@ class TestEnemyTask(GameTask):
         super().__init__('test_enemy_task', game)
 
     async def update(self):
-        enemies = self.game.objects.findByTag('enemy')
+        enemies = self.game.objects.find_by_tag('enemy')
         for enemy in enemies:
             await enemy.update()
         return self._game.get_state()
@@ -36,7 +36,7 @@ class TestPlayerInputTask(GameTask):
         if input_state.player_name != self._player.name:
             return
 
-        self._player.requireComponent(
+        self._player.require_component(
             PlayerInputComponent).direction = input_state.direction
 
         self._wait_for_input = False
@@ -49,7 +49,7 @@ class TestPlayerInputTask(GameTask):
                 break
 
     async def update(self):
-        initiative_cmp = self._player.requireComponent(InitiativeComponent)
+        initiative_cmp = self._player.require_component(InitiativeComponent)
 
         while initiative_cmp.can_do():
             self.game.send_to_output(

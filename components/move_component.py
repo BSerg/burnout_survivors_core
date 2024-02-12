@@ -16,22 +16,23 @@ class MoveComponent(Component):
         return self._path
 
     def can_move(self) -> bool:
-        initiative_cmp = self.game_object.findComponent(InitiativeComponent)
+        initiative_cmp = self.game_object.find_component(InitiativeComponent)
         if not initiative_cmp:
             return True
         return initiative_cmp.can_do()
 
     def move_to_point(self, point: Point) -> None:
-        self._game_object.requireComponent(PositionComponent).position = point
+        self._game_object.require_component(PositionComponent).position = point
         self._path.append(point)
-        
+
         self._game_object.updated = True
-        
-        status_component = self._game_object.findComponent(StatusComponent)
+
+        status_component = self._game_object.find_component(StatusComponent)
         if status_component:
             status_component.status = Status.MOVING.value
-        
-        self._game_object.game.log(f'{self._game_object.name} moved to [{point.x},{point.y}]')
+
+        self._game_object.game.log(
+            f'{self._game_object.name} moved to [{point.x},{point.y}]')
 
     def move_to(self, x: int, y: int) -> None:
         self.move_to_point(Point(x=x, y=y))

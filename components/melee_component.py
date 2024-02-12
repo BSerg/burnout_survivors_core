@@ -28,13 +28,14 @@ class MeleeComponent(Component):
     def attack(self, target: GameObject) -> None:
         if self._weapon:
             self._weapon.attack(target)
-            
+
             self._game_object.updated = True
-            
-            status_component = self._game_object.findComponent(StatusComponent)
+
+            status_component = self._game_object.find_component(
+                StatusComponent)
             if status_component:
                 status_component.status = Status.ATTACKING.value
-            
+
             self._game_object.game.log(
                 f'{self.game_object.name} attacks {target.name} with {self._weapon.name}')
 

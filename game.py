@@ -26,7 +26,7 @@ class GameObjects(GameObjectGroup):
 
     def findObjectsByPosition(self, position: Point):
         for object in self.game.objects:
-            position_component = object.findComponent(PositionComponent)
+            position_component = object.find_component(PositionComponent)
             if position_component and position_component.position == position:
                 yield object
 
@@ -71,24 +71,25 @@ class Game:
     @property
     def current_task(self):
         return self._current_task
-    
+
     @property
     def logs(self) -> list[str]:
         return self._logs
-    
+
     def log(self, message: str) -> None:
         self._logs.append(message)
-       
+
     def get_state(self, updated_only: bool = True) -> GameModel:
         if updated_only:
-            players = [p.get_state() for p in self.objects.findByTag('player') if p.updated]
-            enemies = [e.get_state() for e in self.objects.findByTag('enemy') if e.updated]
+            players = [p.get_state()
+                       for p in self.objects.find_by_tag('player') if p.updated]
+            enemies = [e.get_state()
+                       for e in self.objects.find_by_tag('enemy') if e.updated]
             return GameModel(players=players, enemies=enemies)
-            
-        players = [p.get_state() for p in self.objects.findByTag('player')]
-        enemies = [e.get_state() for e in self.objects.findByTag('enemy')]
-        return GameModel(players=players, enemies=enemies)
 
+        players = [p.get_state() for p in self.objects.find_by_tag('player')]
+        enemies = [e.get_state() for e in self.objects.find_by_tag('enemy')]
+        return GameModel(players=players, enemies=enemies)
 
     def on_input(self, listener: Callable[[InputModel], None]):
         if listener not in self._input_listeners:
