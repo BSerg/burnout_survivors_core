@@ -9,8 +9,7 @@ from pydantic import BaseModel
 from components.position_component import PositionComponent
 from models.game_model import GameModel
 from models.input_model import InputModel
-from models.shared import Point
-from objects.game_object import GameObjectGroup
+from objects.game_object import GameObject, GameObjectGroup
 from tasks import GameTask
 
 
@@ -20,18 +19,11 @@ class GameStatus(Enum):
     STOPPED = 'stopped'
 
 
-class GameObjects(GameObjectGroup):
+class GameObjectManager(GameObjectGroup):
     def __init__(self, *args, **kwargs) -> None:
-        super().__init__('object_pool', *args, **kwargs)
+        super().__init__('object_manager', *args, **kwargs)
 
-    def findObjectsByPosition(self, position: Point):
-        for object in self.game.objects:
-            position_component = object.find_component(PositionComponent)
-            if position_component and position_component.position == position:
-                yield object
-
-    def get_state(self) -> Any:
-        # TODO return state
+    def get_state(self) -> None:
         return None
 
 
@@ -43,7 +35,7 @@ class Game:
         self._status: GameStatus = GameStatus.INIT
         self._tasks: list[GameTask] = list()
         self._current_task: GameTask | None = None
-        self._objects: GameObjects = GameObjects(self)
+        self._objects: GameObjectManager = GameObjectManager(self)
         self._input_listeners: list[Callable] = list()
         self._output_listeners: list[Callable] = list()
         self._logs: list[str] = list()
@@ -55,10 +47,6 @@ class Game:
     @property
     def status(self) -> GameStatus:
         return self._status
-
-    @property
-    def objects(self) -> GameObjects:
-        return self._objects
 
     @property
     def tasks(self):
@@ -73,39 +61,59 @@ class Game:
         return self._current_task
 
     @property
+    def objects(self) -> GameObjectGroup:
+        return self._objects
+
+    # LOG
+
+    @property
     def logs(self) -> list[str]:
         return self._logs
 
     def log(self, message: str) -> None:
+        print(message)  # TODO remove
         self._logs.append(message)
 
-    def get_state(self, updated_only: bool = True) -> GameModel:
-        if updated_only:
-            players = [p.get_state()
-                       for p in self.objects.find_by_tag('player') if p.updated]
-            enemies = [e.get_state()
-                       for e in self.objects.find_by_tag('enemy') if e.updated]
-            return GameModel(players=players, enemies=enemies)
+    # END LOG
 
+    # STATE
+
+    def get_state(self) -> GameModel:
         players = [p.get_state() for p in self.objects.find_by_tag('player')]
         enemies = [e.get_state() for e in self.objects.find_by_tag('enemy')]
-        return GameModel(players=players, enemies=enemies)
+        consumables = [c.get_state()
+                       for c in self.objects.find_by_tag('consumable')]
+        return GameModel(players=players, enemies=enemies, consumables=consumables)
 
-    def on_input(self, listener: Callable[[InputModel], None]):
+    # END STATE
+
+    # LISTENERS
+
+    def add_input_listener(self, listener: Callable[[InputModel], None]):
         if listener not in self._input_listeners:
             self._input_listeners.append(listener)
 
-    def on_output(self, listener: Callable[[GameModel], None]):
-        if listener not in self._output_listeners:
-            self._output_listeners.append(listener)
+    def remove_input_listener(self, listener: Callable[[GameModel], None]):
+        if listener in self._input_listeners:
+            self._input_listeners.remove(listener)
 
     def send_to_input(self, state: InputModel) -> None:
         for listener in self._input_listeners:
             listener(state)
 
+    def add_output_listener(self, listener: Callable[[GameModel], None]):
+        if listener not in self._output_listeners:
+            self._output_listeners.append(listener)
+
+    def remove_output_listener(self, listener: Callable[[GameModel], None]):
+        if listener in self._output_listeners:
+            self._output_listeners.remove(listener)
+
     def send_to_output(self, state: GameModel) -> None:
         for listener in self._output_listeners:
             listener(state)
+
+    # END LISTENERS
 
     async def _run(self):
         if not len(self._tasks):

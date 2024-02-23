@@ -1,15 +1,16 @@
 from pydantic import BaseModel
 
-from models.shared import Point
 from models.melee_weapon_model import MeleeWeaponConfig
+from models.shared import PointModel
 
 
 class PlayerModel(BaseModel):
     name: str
     tags: set[str]
-    position: Point
+    position: PointModel
     health: float
     max_health: float
+    vision_radius: float
     experience: float
     level: int
     status: str
@@ -17,7 +18,9 @@ class PlayerModel(BaseModel):
 
 class PlayerConfig(BaseModel):
     name: str
-    position: Point
+    position: PointModel
     health: float
-    initiative: float
+    exp_consume_radius: float
+    vision_radius: float
     weapon: MeleeWeaponConfig
+    upgrades: list[BaseModel]

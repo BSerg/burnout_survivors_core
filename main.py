@@ -3,40 +3,51 @@ import random
 
 from components.ai_component import AiComponent
 from components.initiative_component import InitiativeComponent
+from components.vitality_component import VitalityComponent
 from factories.enemy_factory import create_enemy
 from factories.game_factory import create_game
+from models.consumable_model import ConsumableConfig
 from models.enemy_model import EnemyConfig
-from models.game_model import GameConfig, GameModel
+from models.game_model import GameConfig, GameModel, InputType
 from models.input_model import Direction, InputModel
 from models.melee_weapon_model import MeleeWeaponConfig
 from models.player_model import PlayerConfig
-from models.shared import Point
+from models.shared import PointModel
+from models.update_model import ExpUpdateConfig
+from objects.upgrades.health_upgrade import HealRateUpgrade, HealthUpgrade
 from utils.utils import async_input
 
 test_config: GameConfig = GameConfig(
     seed='test',
     players=[
         PlayerConfig(
-            name='player',
-            position=Point(x=0, y=0),
+            name='Player',
+            position=PointModel(x=0, y=0),
             health=100,
-            initiative=1,
-            weapon=MeleeWeaponConfig(type='sword', damage=5)
+            vision_radius=5,
+            exp_consume_radius=1,
+            weapon=MeleeWeaponConfig(type='sword', damage=5),
+            upgrades=[]
         )
     ]
 )
 
 test_enemy_config: EnemyConfig = EnemyConfig(
-    name='enemy',
-    position=Point(x=0, y=0),
+    name='Enemy',
+    position=PointModel(x=0, y=0),
     health=10,
     tags=set(['enemy']),
     weapon=MeleeWeaponConfig(type='teeth', damage=10),
-    initiative=0.75
+    initiative=0.75,
+    drop_object=ConsumableConfig(
+        name='exp',
+        type='exp',
+        position=PointModel(x=0, y=0),
+        value=1
+    )
 )
 
-state = {}
-grass = [Point(x=random.randint(-50, 50), y=random.randint(-50, 50))
+grass = [PointModel(x=random.randint(-50, 50), y=random.randint(-50, 50))
          for _ in range(200)]
 
 
@@ -46,6 +57,7 @@ def render_game(state: GameModel):
     if state.players and len(state.players):
         player = state.players[0]
         enemies = state.enemies or list()
+        consumables = state.consumables or list()
 
         print(f'\rPlayer: {player.health}HP')
 
@@ -53,48 +65,29 @@ def render_game(state: GameModel):
             row = []
             for i in range(player.position.x - radius, player.position.x + radius + 1):
                 if (i == player.position.x and k == player.position.y):
-                    if player.status == 'damaged':
-                        row.append('x')
-                    else:
-                        row.append('p')
+                    row.append('P')
                 else:
                     for enemy in [e for e in enemies if e.health > 0]:
                         if i == enemy.position.x and k == enemy.position.y:
-                            if enemy.status == 'damaged':
-                                row.append('x')
-                            else:
-                                row.append('e')
+                            row.append('E')
                             break
                     else:
-                        for g in grass:
-                            if g.x == i and g.y == k:
-                                row.append('~')
-                                break
+                        for consumable in [c for c in consumables if not c.consumed]:
+                            if i == consumable.position.x and k == consumable.position.y:
+                                if 'exp' in consumable.tags:
+                                    row.append('e')
+                                    break
+                                elif 'health' in consumable.tags:
+                                    row.append('h')
+                                    break
                         else:
-                            row.append('-')
+                            for g in grass:
+                                if g.x == i and g.y == k:
+                                    row.append('~')
+                                    break
+                            else:
+                                row.append('-')
             print(' '.join(row))
-
-
-def merge_state(state: GameModel, new_state: GameModel):
-    players = new_state.players or list()
-    players_names = [p.name for p in players]
-
-    for p in state.players or list():
-        if p.name not in players_names:
-            players.append(p)
-
-    enemies = new_state.enemies or list()
-    enemies_names = [p.name for p in enemies]
-
-    for p in state.enemies or list():
-        if p.name not in enemies_names:
-            enemies.append(p)
-
-    state.players = players
-    state.enemies = enemies
-    state.wait_for = new_state.wait_for
-
-    return state
 
 
 def main():
@@ -102,18 +95,13 @@ def main():
 
     player = list(game.objects.find_by_tag('player'))[0]
 
-    for i in range(3):
+    for _ in range(3):
         config = test_enemy_config.model_copy()
-        config.name += f'_{i}'
-        config.position = Point(x=random.randint(-5, 5),
-                                y=random.randint(-5, 5))
+        config.position = PointModel(x=random.randint(-5, 5),
+                                     y=random.randint(-5, 5))
         enemy = create_enemy(game, config)
-        enemy.require_component(
-            InitiativeComponent).initiative_accumulator = random.random()
         enemy.require_component(AiComponent).target = player
         game.objects.add(enemy)
-
-    _state: GameModel = game.get_state(updated_only=False)
 
     async def input_direction():
         value = await async_input('Enter direction (left, up, right, down): ')
@@ -126,14 +114,16 @@ def main():
 
     def output_listener(state: GameModel):
         if state.wait_for and state.wait_for.player == player.name:
-            asyncio.create_task(input_direction())
+            if state.wait_for.type == InputType.ACTION:
+                asyncio.create_task(input_direction())
         else:
-            merge_state(_state, state)
-            render_game(_state)
+            render_game(game.get_state())
 
-    game.on_output(output_listener)
+    game.add_output_listener(output_listener)
 
     print('Start Test Game')
+
+    render_game(game.get_state())
 
     asyncio.run(game.run())
 

@@ -1,10 +1,5 @@
 import asyncio
-import math
 import uuid
-
-from components.component import Component
-from models.shared import Point
-from objects.game_object import GameObject
 
 
 def get_uuid() -> str:

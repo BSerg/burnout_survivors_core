@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 
 
-class Point(BaseModel):
+class PointModel(BaseModel):
     x: int
     y: int

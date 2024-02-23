@@ -1,13 +1,19 @@
+from __future__ import annotations
+
 from components.component import Component
-from objects.game_object import GameObject
 from components.status_component import Status, StatusComponent
+from mixins.upgradable import UpgradableMixin
+from objects.game_object import GameObject
+from objects.upgrades.health_upgrade import HealRateUpgrade, HealthUpgrade
 
 
-class VitalityComponent(Component):
-    def __init__(self, game_object: GameObject, health: float = 1) -> None:
+class VitalityComponent(Component, UpgradableMixin):
+    def __init__(self, game_object: GameObject, health: float = 1, heal_rate: float = 1) -> None:
         super().__init__('vitality_component', game_object)
-        self._health = health
+        UpgradableMixin.__init__(self)
         self._max_health = health
+        self._health = self.max_health
+        self._heal_rate: float = heal_rate
 
     @property
     def health(self) -> float:
@@ -18,6 +24,7 @@ class VitalityComponent(Component):
         self._health = value
 
     @property
+    @UpgradableMixin.modified_by(HealthUpgrade)
     def max_health(self) -> float:
         return self._max_health
 
@@ -26,17 +33,20 @@ class VitalityComponent(Component):
         self._max_health = value
 
     @property
+    @UpgradableMixin.modified_by(HealRateUpgrade)
+    def heal_rate(self) -> float:
+        return self._heal_rate
+
+    @property
     def is_dead(self) -> bool:
-        return self._health <= 0
+        return self.health <= 0
 
     def heal(self, value: float) -> None:
-        self._health = min(self._health + value, self._max_health)
-        self._game_object.updated = True
+        self._health = min(self.health + self.heal_rate *
+                           value, self.max_health)
 
     def damage(self, value: float) -> None:
-        self._health = max(self._health - value, 0)
-
-        self._game_object.updated = True
+        self.health = max(self.health - value, 0)
 
         status_component = self._game_object.find_component(StatusComponent)
         if status_component:

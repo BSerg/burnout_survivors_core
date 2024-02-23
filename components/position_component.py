@@ -1,14 +1,19 @@
 from pydantic import BaseModel
 
 from components.component import Component
-from models.shared import Point
 from objects.game_object import GameObject
+from utils.game import Point
 
 
 class PositionComponent(Component):
     def __init__(self, game_object: GameObject, x: int = 0, y: int = 0) -> None:
         super().__init__('position_component', game_object)
         self._position = Point(x=x, y=y)
+
+    # TODO optimize
+    def _update_manager_position(self):
+        self._game_object.game.objects.remove(self._game_object.name)
+        self._game_object.game.objects.add(self._game_object)
 
     @property
     def position(self) -> Point:
@@ -17,6 +22,7 @@ class PositionComponent(Component):
     @position.setter
     def position(self, value: Point) -> None:
         self._position = value
+        self._update_manager_position()
 
     @property
     def x(self) -> int:
@@ -25,6 +31,7 @@ class PositionComponent(Component):
     @x.setter
     def x(self, value: int) -> None:
         self._position.x = value
+        self._update_manager_position()
 
     @property
     def y(self) -> int:
@@ -33,8 +40,9 @@ class PositionComponent(Component):
     @y.setter
     def y(self, value: int) -> None:
         self.position.y = value
+        self._update_manager_position()
 
-    def get_neighbors(self) -> list[Point]:
+    def get_neighbor_points(self) -> list[Point]:
         return [
             Point(x=self.x - 1, y=self.y),
             Point(x=self.x, y=self.y - 1),

@@ -29,8 +29,6 @@ class MeleeComponent(Component):
         if self._weapon:
             self._weapon.attack(target)
 
-            self._game_object.updated = True
-
             status_component = self._game_object.find_component(
                 StatusComponent)
             if status_component:

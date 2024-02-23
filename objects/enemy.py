@@ -8,6 +8,7 @@ from components.vitality_component import VitalityComponent
 from game import Game
 from models.enemy_model import EnemyModel
 from objects.game_object import GameObject
+from components.drop_component import DropComponent
 
 
 class Enemy(GameObject[EnemyModel]):
@@ -19,6 +20,7 @@ class Enemy(GameObject[EnemyModel]):
             MoveComponent(self),
             VitalityComponent(self),
             MeleeComponent(self),
+            DropComponent(self),
             AiComponent(self)
         ])
 
@@ -29,7 +31,7 @@ class Enemy(GameObject[EnemyModel]):
         return EnemyModel(
             name=self.name,
             tags=self.tags,
-            position=position_component.position,
+            position=position_component.position.get_state(),
             health=vitality_component.health,
             max_health=vitality_component.max_health,
             status=status_component.status

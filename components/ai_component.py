@@ -1,6 +1,7 @@
 import math
 
 from components.component import Component
+from components.drop_component import DropComponent
 from components.initiative_component import InitiativeComponent
 from components.melee_component import MeleeComponent
 from components.move_component import MoveComponent
@@ -33,44 +34,50 @@ class AiComponent(Component):
         if not self._target:
             return
 
+        if self.game_object.require_component(
+                InitiativeComponent).can_do():
+            return
+
         game = self.game_object.game
         target_position_cmp = self._target.require_component(PositionComponent)
         position_cmp = self.game_object.require_component(PositionComponent)
-        initiative_cmp = self.game_object.require_component(
-            InitiativeComponent)
 
-        while initiative_cmp.can_do():
+        min_distance = math.inf
+        move_point = None
 
-            def _do():
-                min_distance = math.inf
-                move_point = None
+        for point in position_cmp.get_neighbor_points():
+            for obj in game.objects:
+                obj_position_component = obj.find_component(PositionComponent)
 
-                for point in position_cmp.get_neighbors():
-                    for obj in game.objects.findObjectsByPosition(point):
-                        if obj == self._target:
-                            self._attack()
-                            move_point = None
-                            return
+                if not obj_position_component:
+                    continue
 
-                        if obj.has_tag('enemy') and not obj.require_component(VitalityComponent).is_dead:
-                            break
+                if obj_position_component.position != point:
+                    continue
 
-                    else:
-                        distance = get_distance_between(
-                            point, target_position_cmp.position)
+                if obj == self._target:
+                    self._attack()
+                    move_point = None
+                    return
 
-                        if distance < min_distance:
-                            min_distance = distance
-                            move_point = point
+                if obj.has_tags('enemy') and not obj.require_component(VitalityComponent).is_dead:
+                    break
 
-                if move_point:
-                    move_cmp = self.game_object.require_component(
-                        MoveComponent)
-                    move_cmp.move_to(move_point.x, move_point.y)
+            else:
+                distance = get_distance_between(
+                    point, target_position_cmp.position)
 
-            initiative_cmp.do(_do)
+                if distance < min_distance:
+                    min_distance = distance
+                    move_point = point
+
+        if move_point:
+            move_cmp = self.game_object.require_component(
+                MoveComponent)
+            move_cmp.move_to(move_point.x, move_point.y)
 
     async def update(self) -> None:
         if self._game_object.require_component(VitalityComponent).is_dead:
-            return
-        self._move()
+            self._game_object.require_component(DropComponent).drop()
+        else:
+            self._move()

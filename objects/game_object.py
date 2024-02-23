@@ -1,14 +1,15 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Type, TypeVar
+from typing import TYPE_CHECKING, Type, TypeVar, Iterator, Generator, Any
 
 from pydantic import BaseModel
 
 from components.component import Component
 from mixins.gamed import GameMixin
-from mixins.named import UniqueNameMixin
+from mixins.named import NameMixin
 from mixins.serializable import SerializerMixin
 from mixins.taged import TagsMixin
+from utils.utils import get_uuid
 
 if TYPE_CHECKING:
     from game import Game
@@ -17,13 +18,17 @@ T = TypeVar('T', bound=BaseModel)
 C = TypeVar('C', bound=Component)
 
 
-class GameObject(UniqueNameMixin, GameMixin, TagsMixin, SerializerMixin[T]):
+class GameObject(NameMixin, GameMixin, TagsMixin, SerializerMixin[T]):
     def __init__(self, name: str, game: Game, tags: set[str] = set(), components: list[Component] = list()) -> None:
-        UniqueNameMixin.__init__(self, name)
+        NameMixin.__init__(self, name)
         GameMixin.__init__(self, game)
         TagsMixin.__init__(self, tags)
+        self._id = get_uuid()
         self._components: list[Component] = components
-        self._updated: bool = False
+
+    @property
+    def id(self) -> str:
+        return self._id
 
     @property
     def game(self) -> Game:
@@ -33,13 +38,8 @@ class GameObject(UniqueNameMixin, GameMixin, TagsMixin, SerializerMixin[T]):
     def components(self) -> list[Component]:
         return self._components
 
-    @property
-    def updated(self) -> bool:
-        return self._updated
-
-    @updated.setter
-    def updated(self, value: bool) -> None:
-        self._updated = value
+    def has_component(self, cls: Type[C]) -> bool:
+        return cls in [type(c) for c in self._components]
 
     def find_component(self, cls: Type[C]) -> C | None:
         for component in self._components:
@@ -61,32 +61,59 @@ class GameObject(UniqueNameMixin, GameMixin, TagsMixin, SerializerMixin[T]):
 class GameObjectGroup(GameObject[T]):
     def __init__(self, name: str, game: Game, objects: list[GameObject] = list(), *args, **kwargs) -> None:
         super().__init__(name, game, *args, **kwargs)
-        self._objects_by_name: dict[str, GameObject] = dict()
+        self._objects_by_id: dict[str, GameObject] = dict()
+        self._objects_by_name: dict[str, set[GameObject]] = dict()
         self._objects_by_tag: dict[str, set[GameObject]] = dict()
         for obj in objects:
             self.add(obj)
 
     def add(self, obj: GameObject):
-        self._objects_by_name[obj.name] = obj
+        self._objects_by_id[obj.id] = obj
+
+        if obj.name not in self._objects_by_name:
+            self._objects_by_name[obj.name] = set([obj])
+        else:
+            self._objects_by_name[obj.name].add(obj)
+
         for tag in obj.tags:
             if tag not in self._objects_by_tag:
                 self._objects_by_tag[tag] = set([obj])
             else:
                 self._objects_by_tag[tag].add(obj)
 
-    def remove(self, name: str):
-        if name in self._objects_by_name:
-            obj = self._objects_by_name[name]
+    def remove(self, id: str):
+        if id in self._objects_by_id:
+            obj = self._objects_by_id[id]
+            self._objects_by_name[obj.name].remove(obj)
             for tag in obj.tags:
                 self._objects_by_tag[tag].remove(obj)
             del obj
 
-    def find_by_name(self, name: str) -> GameObject | None:
-        return self._objects_by_name.get(name)
+    def find_by_id(self, id: str) -> GameObject | None:
+        return self._objects_by_id.get(id)
 
-    def find_by_tag(self, tag: str) -> set[GameObject]:
-        return self._objects_by_tag.get(tag) or set()
+    def find_by_name(self, *names: str) -> set[GameObject]:
+        result = None
+
+        for name in names:
+            if not result:
+                result = self._objects_by_name.get(name, set())
+            else:
+                result &= self._objects_by_name.get(name, set())
+
+        return result or set()
+
+    def find_by_tag(self, *tags: str) -> set[GameObject]:
+        result = None
+
+        for tag in tags:
+            if not result:
+                result = self._objects_by_tag.get(tag, set())
+            else:
+                result &= self._objects_by_tag.get(tag, set())
+
+        return result or set()
 
     def __iter__(self):
-        for obj in self._objects_by_name.values():
+        for obj in self._objects_by_id.values():
             yield obj

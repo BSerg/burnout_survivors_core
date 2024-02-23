@@ -1,9 +1,9 @@
 from components.component import Component
 from components.initiative_component import InitiativeComponent
 from components.position_component import PositionComponent
-from models.shared import Point
 from objects.game_object import GameObject
 from components.status_component import Status, StatusComponent
+from utils.game import Point
 
 
 class MoveComponent(Component):
@@ -15,17 +15,9 @@ class MoveComponent(Component):
     def path(self) -> list[Point]:
         return self._path
 
-    def can_move(self) -> bool:
-        initiative_cmp = self.game_object.find_component(InitiativeComponent)
-        if not initiative_cmp:
-            return True
-        return initiative_cmp.can_do()
-
     def move_to_point(self, point: Point) -> None:
         self._game_object.require_component(PositionComponent).position = point
         self._path.append(point)
-
-        self._game_object.updated = True
 
         status_component = self._game_object.find_component(StatusComponent)
         if status_component:

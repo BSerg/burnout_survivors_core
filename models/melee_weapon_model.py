@@ -6,6 +6,7 @@ class MeleeWeaponModel(BaseModel):
     tags: set[str]
     damage: float
 
+
 class MeleeWeaponConfig(BaseModel):
     type: str
     damage: float
