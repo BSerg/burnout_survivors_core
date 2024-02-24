@@ -8,7 +8,7 @@ class TagsMixin(ABC):
         self._tags = tags
 
     @property
-    def tags(self):
+    def tags(self) -> set[str]:
         return self._tags
 
     def has_tags(self, *tags: str) -> bool:

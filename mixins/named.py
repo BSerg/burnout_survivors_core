@@ -9,9 +9,9 @@ class NameMixin(ABC):
         self._name = name
 
     @property
-    def name(self):
+    def name(self) -> str:
         return self._name
 
     @staticmethod
-    def generate_name():
+    def generate_name() -> str:
         return str(uuid.uuid4())
