@@ -6,13 +6,13 @@ if TYPE_CHECKING:
     from game import Game
 
 class GameManager:
-    instances: dict[str, Game] = {}
+    games: dict[str, Game] = {}
 
     @classmethod
     def register_game(cls, id: str, game: Game) -> None:
-        cls.instances[id] = game
+        cls.games[id] = game
         
 
     @classmethod
     def get_game(cls, id) -> Game:
-        return cls.instances[id]
+        return cls.games[id]
