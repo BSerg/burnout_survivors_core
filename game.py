@@ -11,6 +11,7 @@ from models.game_model import GameModel
 from models.input_model import InputModel
 from objects.game_object import GameObject
 from tasks import GameTask
+from game_manager import GameManager
 
 
 class GameStatus(Enum):
@@ -31,6 +32,8 @@ class Game:
         self._input_listeners: list[Callable] = list()
         self._output_listeners: list[Callable] = list()
         self._logs: list[str] = list()
+        
+        GameManager.register_game(id, self)
 
     @property
     def id(self) -> str:

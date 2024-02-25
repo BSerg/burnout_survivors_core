@@ -13,7 +13,9 @@ from models.input_model import Direction, InputModel
 from models.melee_weapon_model import MeleeWeaponConfig
 from models.player_model import PlayerConfig
 from models.shared import PointModel
-from utils.utils import async_input
+from utils.utils import async_input, get_uuid
+from game_manager import GameManager
+from game_context import GameContext
 
 test_config: GameConfig = GameConfig(
     seed='test',
@@ -90,30 +92,31 @@ def render_game(state: GameModel):
 
 
 def main():
-    game = create_game(test_config)
+    with GameContext(get_uuid()) as game_id:
+        game = create_game(game_id, test_config)
 
-    player = list(game.objects.find_by_tag('player'))[0]
+        player = list(game.objects.find_by_tag('player'))[0]
 
-    async def input_direction():
-        value = await async_input('Enter direction (left, up, right, down): ')
-        try:
-            game.send_to_input(InputModel(
-                player_name=player.name, direction=Direction(value)))
-        except:
-            game.send_to_input(InputModel(
-                player_name=player.name, direction=None))
+        async def input_direction():
+            value = await async_input('Enter direction (left, up, right, down): ')
+            try:
+                game.send_to_input(InputModel(
+                    player_name=player.name, direction=Direction(value)))
+            except:
+                game.send_to_input(InputModel(
+                    player_name=player.name, direction=None))
 
-    def output_listener(state: GameModel):
-        if state.wait_for and state.wait_for.player == player.name:
-            if state.wait_for.type == InputType.ACTION:
-                asyncio.create_task(input_direction())
-        else:
-            render_game(game.get_state())
+        def output_listener(state: GameModel):
+            if state.wait_for and state.wait_for.player == player.name:
+                if state.wait_for.type == InputType.ACTION:
+                    asyncio.create_task(input_direction())
+            else:
+                render_game(game.get_state())
 
-    game.add_output_listener(output_listener)
-    print('Start Test Game')
-    render_game(game.get_state())
-    asyncio.run(game.run())
+        game.add_output_listener(output_listener)
+        print('Start Test Game')
+        render_game(game.get_state())
+        asyncio.run(game.run())
 
 
 if __name__ == "__main__":

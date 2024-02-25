@@ -1,4 +1,3 @@
-from game_context import game_context
 from utils.utils import get_uuid
 from game import Game
 from models.game_model import GameConfig
@@ -13,12 +12,9 @@ from components.ai_component import AiComponent
 from models.shared import PointModel
 
 
-def create_game(config: GameConfig):
-    game_id = get_uuid()
+def create_game(game_id: str, config: GameConfig):
     seed = config.seed or get_uuid()
     game = Game(game_id, seed)
-
-    game_context.set(game)
 
     for player_config in config.players:
         player = create_player(player_config)

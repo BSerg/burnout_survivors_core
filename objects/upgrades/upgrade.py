@@ -17,6 +17,10 @@ class Upgrade(GameObject):
         self._next_upgrades: list[Upgrade] = list()
 
     @property
+    def applied(self) -> bool:
+        return self._applied
+
+    @property
     def next_upgrades(self) -> list[Upgrade]:
         return self._next_upgrades
 

@@ -7,9 +7,10 @@ from components.melee_component import MeleeComponent
 from components.move_component import MoveComponent
 from components.position_component import PositionComponent
 from components.vitality_component import VitalityComponent
-from game_context import get_game
+from game_context import GameContext, get_game
 from objects.game_object import GameObject
 from utils.game import get_distance_between
+from game_manager import GameManager
 
 
 class AiComponent(Component):
