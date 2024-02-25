@@ -1,27 +1,22 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Type, TypeVar, Iterator, Generator, Any
+from typing import Generic, Type, TypeVar
 
 from pydantic import BaseModel
 
 from components.component import Component
-from mixins.gamed import GameMixin
 from mixins.named import NameMixin
 from mixins.serializable import SerializerMixin
 from mixins.taged import TagsMixin
 from utils.utils import get_uuid
 
-if TYPE_CHECKING:
-    from game import Game
-
 T = TypeVar('T', bound=BaseModel)
 C = TypeVar('C', bound=Component)
 
 
-class GameObject(NameMixin, GameMixin, TagsMixin, SerializerMixin[T]):
-    def __init__(self, name: str, game: Game, tags: set[str] = set(), components: list[Component] = list()) -> None:
+class GameObject(NameMixin, TagsMixin, SerializerMixin[T]):
+    def __init__(self, name: str, tags: set[str] = set(), components: list[Component] = list()) -> None:
         NameMixin.__init__(self, name)
-        GameMixin.__init__(self, game)
         TagsMixin.__init__(self, tags)
         self._id = get_uuid()
         self._components: list[Component] = components
@@ -29,10 +24,6 @@ class GameObject(NameMixin, GameMixin, TagsMixin, SerializerMixin[T]):
     @property
     def id(self) -> str:
         return self._id
-
-    @property
-    def game(self) -> Game:
-        return self._game
 
     @property
     def components(self) -> list[Component]:
@@ -58,16 +49,19 @@ class GameObject(NameMixin, GameMixin, TagsMixin, SerializerMixin[T]):
             await component.update()
 
 
-class GameObjectGroup(GameObject[T]):
-    def __init__(self, name: str, game: Game, objects: list[GameObject] = list(), *args, **kwargs) -> None:
-        super().__init__(name, game, *args, **kwargs)
-        self._objects_by_id: dict[str, GameObject] = dict()
-        self._objects_by_name: dict[str, set[GameObject]] = dict()
-        self._objects_by_tag: dict[str, set[GameObject]] = dict()
+O = TypeVar('O', bound=GameObject)
+
+
+class GameObjectGroup(GameObject, Generic[O]):
+    def __init__(self, name: str, objects: list[O] = list(), *args, **kwargs) -> None:
+        super().__init__(name, *args, **kwargs)
+        self._objects_by_id: dict[str, O] = dict()
+        self._objects_by_name: dict[str, set[O]] = dict()
+        self._objects_by_tag: dict[str, set[O]] = dict()
         for obj in objects:
             self.add(obj)
 
-    def add(self, obj: GameObject):
+    def add(self, obj: O):
         self._objects_by_id[obj.id] = obj
 
         if obj.name not in self._objects_by_name:
@@ -89,10 +83,10 @@ class GameObjectGroup(GameObject[T]):
                 self._objects_by_tag[tag].remove(obj)
             del obj
 
-    def find_by_id(self, id: str) -> GameObject | None:
+    def find_by_id(self, id: str) -> O | None:
         return self._objects_by_id.get(id)
 
-    def find_by_name(self, *names: str) -> set[GameObject]:
+    def find_by_name(self, *names: str) -> set[O]:
         result = None
 
         for name in names:
@@ -103,7 +97,7 @@ class GameObjectGroup(GameObject[T]):
 
         return result or set()
 
-    def find_by_tag(self, *tags: str) -> set[GameObject]:
+    def find_by_tag(self, *tags: str) -> set[O]:
         result = None
 
         for tag in tags:

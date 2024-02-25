@@ -12,8 +12,8 @@ from components.drop_component import DropComponent
 
 
 class Enemy(GameObject[EnemyModel]):
-    def __init__(self, name: str, game: Game) -> None:
-        super().__init__(name, game, set(['enemy']), [
+    def __init__(self, name: str) -> None:
+        super().__init__(name, set(['enemy']), [
             StatusComponent(self),
             InitiativeComponent(self),
             PositionComponent(self),

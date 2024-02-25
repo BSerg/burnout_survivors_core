@@ -5,8 +5,8 @@ from objects.game_object import GameObject
 
 
 class Consumable(GameObject[ConsumableModel]):
-    def __init__(self, name: str, game: Game, tags: set[str] = set(['consumable']), value: float = 1) -> None:
-        super().__init__(name, game, tags, components=[
+    def __init__(self, name: str, tags: set[str] = set(['consumable']), value: float = 1) -> None:
+        super().__init__(name, tags, components=[
             PositionComponent(self),
         ])
         self._value: float = value

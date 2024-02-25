@@ -7,6 +7,7 @@ from components.melee_component import MeleeComponent
 from components.move_component import MoveComponent
 from components.position_component import PositionComponent
 from components.vitality_component import VitalityComponent
+from game_context import get_game
 from objects.game_object import GameObject
 from utils.game import get_distance_between
 
@@ -38,7 +39,7 @@ class AiComponent(Component):
                 InitiativeComponent).can_do():
             return
 
-        game = self.game_object.game
+        game = get_game()
         target_position_cmp = self._target.require_component(PositionComponent)
         position_cmp = self.game_object.require_component(PositionComponent)
 

@@ -4,7 +4,6 @@ import math
 from functools import lru_cache
 
 from models.shared import PointModel
-from objects.game_object import GameObject
 
 
 class Point:

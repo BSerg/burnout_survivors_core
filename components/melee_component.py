@@ -2,6 +2,7 @@ from components.component import Component
 from objects.game_object import GameObject
 from objects.weapons.weapon import Weapon
 from components.status_component import Status, StatusComponent
+from game_context import get_game
 
 
 class MeleeComponent(Component):
@@ -34,7 +35,7 @@ class MeleeComponent(Component):
             if status_component:
                 status_component.status = Status.ATTACKING.value
 
-            self._game_object.game.log(
+            get_game().log(
                 f'{self.game_object.name} attacks {target.name} with {self._weapon.name}')
 
     async def update(self) -> None:

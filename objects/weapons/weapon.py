@@ -5,8 +5,8 @@ from game import Game
 
 
 class Weapon(GameObject):
-    def __init__(self, name: str, game: Game, owner: GameObject, **kwargs) -> None:
-        super().__init__(name, game, **kwargs)
+    def __init__(self, name: str, owner: GameObject, **kwargs) -> None:
+        super().__init__(name, **kwargs)
         self._tags = set(['weapon'])
         self._owner = owner
 

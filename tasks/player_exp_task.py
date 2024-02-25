@@ -6,11 +6,12 @@ from objects.player import Player
 from tasks.input_task import InputTask
 from models.input_model import InputModel
 from components.experience_component import ExperienceComponent
+from game_context import get_game
 
 
 class PlayerExpTask(InputTask):
-    def __init__(self, game: Game, player: Player) -> None:
-        super().__init__('player_exp_task', game, player)
+    def __init__(self, player: Player) -> None:
+        super().__init__('player_exp_task', player)
 
     def _input_listener(self, input_state: InputModel):
         if input_state.player_name != self._player.name:
@@ -18,7 +19,7 @@ class PlayerExpTask(InputTask):
 
         # TODO select powerup
 
-        self._game.send_to_output(self._game.get_state())
+        get_game().send_to_output(get_game().get_state())
 
         self.stop_waiting()
 
@@ -32,4 +33,4 @@ class PlayerExpTask(InputTask):
             await self.wait()
 
         await self._player.update()
-        return self._game.get_state()
+        return get_game().get_state()

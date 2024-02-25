@@ -1,8 +1,14 @@
-from pydantic import BaseModel
+from __future__ import annotations
+
+
+from typing import TYPE_CHECKING
 
 from components.component import Component
-from objects.game_object import GameObject
+from game_context import get_game
 from utils.game import Point
+
+if TYPE_CHECKING:
+    from objects.game_object import GameObject
 
 
 class PositionComponent(Component):
@@ -12,8 +18,8 @@ class PositionComponent(Component):
 
     # TODO optimize
     def _update_manager_position(self):
-        self._game_object.game.objects.remove(self._game_object.name)
-        self._game_object.game.objects.add(self._game_object)
+        get_game().objects.remove(self._game_object.name)
+        get_game().objects.add(self._game_object)
 
     @property
     def position(self) -> Point:

@@ -2,15 +2,13 @@ from __future__ import annotations
 
 from components.component import Component
 from components.status_component import Status, StatusComponent
-from mixins.upgradable import UpgradableMixin
 from objects.game_object import GameObject
-from objects.upgrades.health_upgrade import HealRateUpgrade, HealthUpgrade
+from game_context import get_game
 
 
-class VitalityComponent(Component, UpgradableMixin):
+class VitalityComponent(Component):
     def __init__(self, game_object: GameObject, health: float = 1, heal_rate: float = 1) -> None:
         super().__init__('vitality_component', game_object)
-        UpgradableMixin.__init__(self)
         self._max_health = health
         self._health = self.max_health
         self._heal_rate: float = heal_rate
@@ -24,7 +22,6 @@ class VitalityComponent(Component, UpgradableMixin):
         self._health = value
 
     @property
-    @UpgradableMixin.modified_by(HealthUpgrade)
     def max_health(self) -> float:
         return self._max_health
 
@@ -33,9 +30,12 @@ class VitalityComponent(Component, UpgradableMixin):
         self._max_health = value
 
     @property
-    @UpgradableMixin.modified_by(HealRateUpgrade)
     def heal_rate(self) -> float:
         return self._heal_rate
+
+    @heal_rate.setter
+    def heal_rate(self, value: float) -> None:
+        self._heal_rate = value
 
     @property
     def is_dead(self) -> bool:
@@ -53,10 +53,10 @@ class VitalityComponent(Component, UpgradableMixin):
             status_component.status = Status.DAMAGED.value
 
         if self._health > 0:
-            self._game_object.game.log(
+            get_game().log(
                 f'{self._game_object.name} got damage {value}HP')
         else:
-            self._game_object.game.log(f'{self._game_object.name} is dead')
+            get_game().log(f'{self._game_object.name} is dead')
 
     def increase_max_health(self, value: float) -> None:
         self._max_health += value

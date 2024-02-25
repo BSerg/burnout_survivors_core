@@ -9,8 +9,8 @@ from utils.game import get_distance_between
 
 
 class MeleeWeapon(Weapon):
-    def __init__(self, name: str, game: Game, owner: GameObject, damage: float = 1, **kwargs) -> None:
-        super().__init__(name, game, owner, **kwargs)
+    def __init__(self, name: str, owner: GameObject, damage: float = 1, **kwargs) -> None:
+        super().__init__(name, owner, **kwargs)
         self._damage = damage
 
     @property

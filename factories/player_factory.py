@@ -3,14 +3,13 @@ from components.melee_component import MeleeComponent
 from components.position_component import PositionComponent
 from components.vitality_component import VitalityComponent
 from factories.weapon_factory import create_weapon
-from game import Game
 from models.player_model import PlayerConfig
 from objects.player import Player
 from utils.game import Point
 
 
-def create_player(game: Game, config: PlayerConfig) -> Player:
-    player = Player(config.name, game)
+def create_player(config: PlayerConfig) -> Player:
+    player = Player(config.name)
 
     # POSITION
     player.require_component(PositionComponent).position = Point(

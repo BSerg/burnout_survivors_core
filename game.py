@@ -1,15 +1,15 @@
+from __future__ import annotations
+
 import asyncio
 import random
 import uuid
 from enum import Enum
-from typing import Any, Callable
+from typing import Callable, Type
 
-from pydantic import BaseModel
-
-from components.position_component import PositionComponent
+from game_object_manager import GameObjectManager
 from models.game_model import GameModel
 from models.input_model import InputModel
-from objects.game_object import GameObject, GameObjectGroup
+from objects.game_object import GameObject
 from tasks import GameTask
 
 
@@ -17,14 +17,6 @@ class GameStatus(Enum):
     INIT = 'init',
     RUNNING = 'running',
     STOPPED = 'stopped'
-
-
-class GameObjectManager(GameObjectGroup):
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__('object_manager', *args, **kwargs)
-
-    def get_state(self) -> None:
-        return None
 
 
 class Game:
@@ -35,7 +27,7 @@ class Game:
         self._status: GameStatus = GameStatus.INIT
         self._tasks: list[GameTask] = list()
         self._current_task: GameTask | None = None
-        self._objects: GameObjectManager = GameObjectManager(self)
+        self._objects: GameObjectManager = GameObjectManager()
         self._input_listeners: list[Callable] = list()
         self._output_listeners: list[Callable] = list()
         self._logs: list[str] = list()
@@ -61,7 +53,7 @@ class Game:
         return self._current_task
 
     @property
-    def objects(self) -> GameObjectGroup:
+    def objects(self) -> GameObjectManager:
         return self._objects
 
     # LOG
@@ -114,6 +106,11 @@ class Game:
             listener(state)
 
     # END LISTENERS
+
+    def instantiate(self, cls: Type[GameObject], *args, **kwargs) -> GameObject:
+        game_object = cls(*args, **kwargs)
+        self._objects.add(game_object)
+        return game_object
 
     async def _run(self):
         if not len(self._tasks):

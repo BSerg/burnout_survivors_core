@@ -13,8 +13,6 @@ from models.input_model import Direction, InputModel
 from models.melee_weapon_model import MeleeWeaponConfig
 from models.player_model import PlayerConfig
 from models.shared import PointModel
-from models.update_model import ExpUpdateConfig
-from objects.upgrades.health_upgrade import HealRateUpgrade, HealthUpgrade
 from utils.utils import async_input
 
 test_config: GameConfig = GameConfig(
@@ -29,22 +27,23 @@ test_config: GameConfig = GameConfig(
             weapon=MeleeWeaponConfig(type='sword', damage=5),
             upgrades=[]
         )
+    ],
+    enemies=[
+        EnemyConfig(
+            name='Enemy',
+            position=PointModel(x=0, y=0),
+            health=10,
+            tags=set(['enemy']),
+            weapon=MeleeWeaponConfig(type='teeth', damage=10),
+            initiative=0.75,
+            drop_object=ConsumableConfig(
+                name='exp',
+                type='exp',
+                position=PointModel(x=0, y=0),
+                value=1
+            )
+        )
     ]
-)
-
-test_enemy_config: EnemyConfig = EnemyConfig(
-    name='Enemy',
-    position=PointModel(x=0, y=0),
-    health=10,
-    tags=set(['enemy']),
-    weapon=MeleeWeaponConfig(type='teeth', damage=10),
-    initiative=0.75,
-    drop_object=ConsumableConfig(
-        name='exp',
-        type='exp',
-        position=PointModel(x=0, y=0),
-        value=1
-    )
 )
 
 grass = [PointModel(x=random.randint(-50, 50), y=random.randint(-50, 50))
@@ -95,14 +94,6 @@ def main():
 
     player = list(game.objects.find_by_tag('player'))[0]
 
-    for _ in range(3):
-        config = test_enemy_config.model_copy()
-        config.position = PointModel(x=random.randint(-5, 5),
-                                     y=random.randint(-5, 5))
-        enemy = create_enemy(game, config)
-        enemy.require_component(AiComponent).target = player
-        game.objects.add(enemy)
-
     async def input_direction():
         value = await async_input('Enter direction (left, up, right, down): ')
         try:
@@ -120,11 +111,8 @@ def main():
             render_game(game.get_state())
 
     game.add_output_listener(output_listener)
-
     print('Start Test Game')
-
     render_game(game.get_state())
-
     asyncio.run(game.run())
 
 

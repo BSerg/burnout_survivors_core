@@ -1,13 +1,21 @@
-from models.update_model import ExpUpdateConfig, HealthUpdateConfig
+from models.upgrade_model import *
 from objects.upgrades.upgrade import Upgrade
 from game import Game
-from objects.upgrades.health_upgrade import HealthUpgrade
+from objects.upgrades.health_upgrade import HealRateUpgrade, HealthUpgrade
+from objects.player import Player
 
-UpgradeConfig = HealthUpdateConfig | ExpUpdateConfig
 
+def create_upgrade(player: Player, config: UpgradeConfig) -> Upgrade:
+    if isinstance(config, HealthUpgradeConfig):
+        return HealthUpgrade(config.name, player, config.value)
 
-def create_upgrade(game: Game, config: UpgradeConfig) -> HealthUpgrade:
-    if isinstance(config, HealthUpdateConfig):
-        return HealthUpgrade(game, config.health_modificator)
+    if isinstance(config, HealRateUpgradeConfig):
+        return HealRateUpgrade(config.name, player, config.value)
+
+    if isinstance(config, ExpConsumeRadiusUpgradeConfig):
+        pass
+
+    if isinstance(config, ExpConsumeRateUpgradeConfig):
+        pass
 
     raise Exception('Upgrade config is unknown')

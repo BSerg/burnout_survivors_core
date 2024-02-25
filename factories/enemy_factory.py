@@ -11,8 +11,8 @@ from components.drop_component import DropComponent
 from utils.game import Point
 
 
-def create_enemy(game: Game, config: EnemyConfig) -> Enemy:
-    enemy = Enemy(config.name, game)
+def create_enemy(config: EnemyConfig) -> Enemy:
+    enemy = Enemy(config.name)
 
     # POSITION
     enemy.require_component(PositionComponent).position = Point(
@@ -33,7 +33,7 @@ def create_enemy(game: Game, config: EnemyConfig) -> Enemy:
 
     # DROP
     if config.drop_object:
-        drop_object = create_consumable(game, config.drop_object)
+        drop_object = create_consumable(config.drop_object)
         enemy.require_component(DropComponent).drop_object = drop_object
 
     return enemy

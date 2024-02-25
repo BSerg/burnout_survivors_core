@@ -1,30 +1,35 @@
 from components.component import Component
+from components.vitality_component import VitalityComponent
 from game import Game
+from objects.player import Player
 from objects.upgrades.upgrade import Upgrade
 
 
 class HealthUpgrade(Upgrade):
-    def __init__(self, game: Game, modificator: float = 1) -> None:
-        super().__init__('health_upgrade', game, set(['upgrade', 'health']))
-        self._modificator = modificator
+    def __init__(self, name: str, player: Player, value: float = 0) -> None:
+        super().__init__(name, player, set(['upgrade', 'health']))
+        self._value: float = value
 
-    @property
-    def modificator(self) -> float:
-        return self._modificator
+    def can_be_applied(self) -> bool:
+        return super().can_be_applied() and self._player.has_component(VitalityComponent)
 
-    def modify(self, value: float):
-        return self._modificator * value
+    def apply(self) -> None:
+        super().apply()
+        vitality_component = self._player.require_component(VitalityComponent)
+        vitality_component.max_health += self._value
+        vitality_component.health += self._value
 
 
 class HealRateUpgrade(Upgrade):
-    def __init__(self, game: Game, modificator: float = 1) -> None:
-        super().__init__('heal_rate_upgrade',
-                         game, set(['upgrade', 'heal_rate']))
-        self._modificator = modificator
+    def __init__(self, name: str, player: Player, value: float = 1) -> None:
+        super().__init__(name,
+                         player, set(['upgrade', 'heal_rate']))
+        self._value = value
 
-    @property
-    def modificator(self) -> float:
-        return self._modificator
+    def can_be_applied(self) -> bool:
+        return super().can_be_applied() and self._player.has_component(VitalityComponent)
 
-    def modify(self, value: float):
-        return self._modificator * value
+    def apply(self) -> None:
+        super().apply()
+        vitality_component = self._player.require_component(VitalityComponent)
+        vitality_component.heal_rate += self._value

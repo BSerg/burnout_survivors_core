@@ -12,15 +12,12 @@ from components.vision_component import VisionComponent
 from components.vitality_component import VitalityComponent
 from models.player_model import PlayerModel
 from objects.game_object import GameObject
-from upgrades.upgrade_manager import UpgradeManager
-
-if TYPE_CHECKING:
-    from game import Game
+from objects.upgrades.upgrade_manager import UpgradeManager
 
 
 class Player(GameObject[PlayerModel]):
-    def __init__(self, name: str, game: Game) -> None:
-        super().__init__(name, game, tags=set(['player']))
+    def __init__(self, name: str) -> None:
+        super().__init__(name, tags=set(['player']))
 
         self._components = [
             StatusComponent(self),
@@ -33,7 +30,7 @@ class Player(GameObject[PlayerModel]):
             PlayerComponent(self),
         ]
 
-        self._upgrade_manager = UpgradeManager()
+        self._upgrade_manager = UpgradeManager(self)
 
     @property
     def upgrades(self) -> UpgradeManager:

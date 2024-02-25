@@ -8,9 +8,9 @@ from objects.weapons.teeth import Teeth
 
 def create_weapon(owner: GameObject, config: MeleeWeaponConfig) -> Weapon:
     if config.type == 'sword':
-        return Sword(name=f'sword_of_{owner.name}', game=owner.game, owner=owner,  damage=config.damage)
+        return Sword(name=f'sword_of_{owner.name}', owner=owner,  damage=config.damage)
 
     if config.type == 'teeth':
-        return Teeth(name=f'teeth_of_{owner.name}', game=owner.game, owner=owner,  damage=config.damage)
+        return Teeth(name=f'teeth_of_{owner.name}', owner=owner,  damage=config.damage)
 
     raise Exception('Unknown weapon type')

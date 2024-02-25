@@ -1,11 +1,11 @@
 from components.component import Component
 from components.position_component import PositionComponent
+from game_context import get_game
 from objects.game_object import GameObject
 from utils.game import get_points_in_radius
-from mixins.upgradable import UpgradableMixin
 
 
-class VisionComponent(Component, UpgradableMixin):
+class VisionComponent(Component):
     def __init__(self, game_object: GameObject, radius: float = 1) -> None:
         super().__init__('vision_component', game_object)
         self._radius = radius
@@ -26,7 +26,7 @@ class VisionComponent(Component, UpgradableMixin):
             if x == position_component.x and y == position_component.y:
                 continue
 
-            objs = self._game_object.game.objects.find_by_position(x, y)
+            objs = set(get_game().objects.find_by_position(x, y))
 
             if not visible_objects:
                 visible_objects = objs

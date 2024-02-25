@@ -1,7 +1,7 @@
 from enum import Enum
 from pydantic import BaseModel
 
-from models.enemy_model import EnemyModel
+from models.enemy_model import EnemyConfig, EnemyModel
 from models.player_model import PlayerConfig, PlayerModel
 from typing import Optional
 from models.consumable_model import ConsumableModel
@@ -29,3 +29,4 @@ class GameModel(BaseModel):
 class GameConfig(BaseModel):
     seed: Optional[str]
     players: list[PlayerConfig]
+    enemies: list[EnemyConfig]

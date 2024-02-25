@@ -7,14 +7,15 @@ from models.game_model import GameModel, InputType, WaitForModel
 from models.input_model import InputModel
 from objects.player import Player
 from tasks.input_task import InputTask
+from game_context import get_game
 
 if TYPE_CHECKING:
     from game import Game
 
 
 class PlayerTask(InputTask):
-    def __init__(self, game: Game, player: Player) -> None:
-        super().__init__('player_task', game, player)
+    def __init__(self, player: Player) -> None:
+        super().__init__('player_task', player)
 
     def _input_listener(self, input_state: InputModel):
         if input_state.player_name != self._player.name:
@@ -24,8 +25,8 @@ class PlayerTask(InputTask):
         self.stop_waiting()
 
     async def update(self):
-        self.game.send_to_output(
+        get_game().send_to_output(
             GameModel(wait_for=WaitForModel(type=InputType.ACTION, player=self._player.name)))
         await self.wait()
         await self._player.update()
-        return self._game.get_state()
+        return get_game().get_state()

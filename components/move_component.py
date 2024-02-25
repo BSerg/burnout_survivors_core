@@ -1,6 +1,7 @@
 from components.component import Component
 from components.initiative_component import InitiativeComponent
 from components.position_component import PositionComponent
+from game_context import get_game
 from objects.game_object import GameObject
 from components.status_component import Status, StatusComponent
 from utils.game import Point
@@ -23,7 +24,7 @@ class MoveComponent(Component):
         if status_component:
             status_component.status = Status.MOVING.value
 
-        self._game_object.game.log(
+        get_game().log(
             f'{self._game_object.name} moved to [{point.x},{point.y}]')
 
     def move_to(self, x: int, y: int) -> None:
