@@ -32,7 +32,7 @@ class Game:
         self._input_listeners: list[Callable] = list()
         self._output_listeners: list[Callable] = list()
         self._logs: list[str] = list()
-        
+
         GameManager.register_game(id, self)
 
     @property
