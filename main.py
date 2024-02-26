@@ -116,7 +116,7 @@ def main():
         game = create_game(game_id, test_config)
 
         player = list(game.objects.find_by_tag('player'))[0]
-        
+
         if not isinstance(player, Player):
             raise Exception('Player is invalid')
 

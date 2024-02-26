@@ -16,10 +16,12 @@ def create_upgrade(player: Player, parent: Upgrade | None, config: UpgradeConfig
         upgrade = HealRateUpgrade(config.name, player, parent, config.value)
 
     if isinstance(config, ExpConsumeRadiusUpgradeConfig):
-        upgrade = ExpConsumeRadiusUpgrade(config.name, player, parent, config.value)
+        upgrade = ExpConsumeRadiusUpgrade(
+            config.name, player, parent, config.value)
 
     if isinstance(config, ExpConsumeRateUpgradeConfig):
-        upgrade = ExpConsumeRateUpgrade(config.name, player, parent, config.value)
+        upgrade = ExpConsumeRateUpgrade(
+            config.name, player, parent, config.value)
 
     if upgrade:
         for next_config in config.next_upgrades:

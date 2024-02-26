@@ -19,13 +19,13 @@ class Upgrade(GameObjectGroup['Upgrade']):
     @property
     def applied(self) -> bool:
         return self._applied
-    
+
     def find_by_id(self, id: str) -> Upgrade | None:
         upgrade = super().find_by_id(id)
-        
+
         if upgrade:
             return upgrade
-        
+
         for next_upgrade in self:
             upgrade = next_upgrade.find_by_id(id)
             if upgrade:

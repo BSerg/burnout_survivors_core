@@ -5,6 +5,7 @@ from pydantic import BaseModel
 
 T = TypeVar('T')
 
+
 class Direction(Enum):
     LEFT = 'left'
     RIGHT = 'right'
@@ -15,6 +16,7 @@ class Direction(Enum):
 class InputModel(BaseModel, Generic[T]):
     player_name: str
     input: Optional[T]
+
 
 class InputActionModel(InputModel[Direction]):
     player_name: str

@@ -10,10 +10,10 @@ class TagsMixin(ABC):
     @property
     def tags(self) -> set[str]:
         return self._tags
-    
+
     def add_tag(self, value: str) -> None:
         self._tags.add(value)
-        
+
     def remove_tag(self, value: str) -> None:
         self._tags.remove(value)
 

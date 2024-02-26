@@ -22,11 +22,11 @@ class ExperienceComponent(Component):
     @property
     def level(self) -> int:
         return self._level
-    
+
     @property
     def level_map(self) -> list[float]:
         return self._level_map
-    
+
     @level_map.setter
     def level_map(self, value: list[float]) -> None:
         self._level_map = value
