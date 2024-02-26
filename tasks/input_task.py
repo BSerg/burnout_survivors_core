@@ -7,7 +7,7 @@ from objects.player import Player
 from typing import Generic, TypeVar
 
 from abc import abstractmethod
-from game_context import get_game
+from game_context import get_current_game
 
 T = TypeVar('T')
 
@@ -19,13 +19,13 @@ class InputTask(Generic[T], GameTask):
         self._waiting: bool = False
 
     async def wait(self):
-        get_game().add_input_listener(self._input_listener)
+        get_current_game().add_input_listener(self._input_listener)
 
         self._waiting = True
         while self._waiting:
             await asyncio.sleep(0.1)
 
-        get_game().remove_input_listener(self._input_listener)
+        get_current_game().remove_input_listener(self._input_listener)
 
     def stop_waiting(self):
         self._waiting = False

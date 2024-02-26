@@ -6,6 +6,7 @@ from factories.weapon_factory import create_weapon
 from models.player_model import PlayerConfig
 from objects.player import Player
 from utils.game import Point
+from factories.upgrade_factory import create_upgrade
 
 
 def create_player(config: PlayerConfig) -> Player:
@@ -22,11 +23,16 @@ def create_player(config: PlayerConfig) -> Player:
 
     # EXPIRIENCE
     exp_component = player.require_component(ExperienceComponent)
+    exp_component.level_map = config.exp_level_map
     exp_component.consume_radius = config.exp_consume_radius
 
     # WEAPON
     weapon = create_weapon(player, config.weapon)
     weapon.owner = player
     player.require_component(MeleeComponent).weapon = weapon
+
+    # UPGRADES
+    for upgrade_config in config.upgrades:
+        player.upgrades.add(create_upgrade(player, None, upgrade_config))
 
     return player

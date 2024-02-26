@@ -1,21 +1,20 @@
 import asyncio
 import random
 
-from components.ai_component import AiComponent
-from components.initiative_component import InitiativeComponent
-from components.vitality_component import VitalityComponent
-from factories.enemy_factory import create_enemy
 from factories.game_factory import create_game
+from game_context import GameContext
 from models.consumable_model import ConsumableConfig
 from models.enemy_model import EnemyConfig
 from models.game_model import GameConfig, GameModel, InputType
-from models.input_model import Direction, InputModel
+from models.input_model import Direction, InputActionModel, InputSelectModel
 from models.melee_weapon_model import MeleeWeaponConfig
 from models.player_model import PlayerConfig
 from models.shared import PointModel
+from models.upgrade_model import (ExpConsumeRadiusUpgradeConfig,
+                                  ExpConsumeRateUpgradeConfig,
+                                  HealRateUpgradeConfig, HealthUpgradeConfig)
+from objects.player import Player
 from utils.utils import async_input, get_uuid
-from game_manager import GameManager
-from game_context import GameContext
 
 test_config: GameConfig = GameConfig(
     seed='test',
@@ -25,9 +24,29 @@ test_config: GameConfig = GameConfig(
             position=PointModel(x=0, y=0),
             health=100,
             vision_radius=5,
+            exp_level_map=[10, 20, 30],
             exp_consume_radius=1,
             weapon=MeleeWeaponConfig(type='sword', damage=5),
-            upgrades=[]
+            upgrades=[
+                HealthUpgradeConfig(name='Helth +10', value=10, next_upgrades=[
+                    HealthUpgradeConfig(name='Health +20', value=20, next_upgrades=[
+                        HealthUpgradeConfig(
+                            name='Health +50', value=50, next_upgrades=[]),
+                    ]),
+                ]),
+                HealRateUpgradeConfig(
+                    name='Heal Rate +10%', value=0.1, next_upgrades=[]),
+                ExpConsumeRadiusUpgradeConfig(name='XP consume radius +1', value=1, next_upgrades=[
+                    ExpConsumeRadiusUpgradeConfig(name='XP consume radius +1', value=1, next_upgrades=[
+                        ExpConsumeRadiusUpgradeConfig(
+                            name='XP consume radius +2', value=2, next_upgrades=[])
+                    ])
+                ]),
+                ExpConsumeRateUpgradeConfig(name='XP consume rate +20%', value=0.2, next_upgrades=[
+                    ExpConsumeRateUpgradeConfig(
+                        name='XP consume rate +10%', value=0.1, next_upgrades=[]),
+                ]),
+            ]
         )
     ],
     enemies=[
@@ -42,7 +61,7 @@ test_config: GameConfig = GameConfig(
                 name='exp',
                 type='exp',
                 position=PointModel(x=0, y=0),
-                value=1
+                value=10
             )
         )
     ]
@@ -60,7 +79,8 @@ def render_game(state: GameModel):
         enemies = state.enemies or list()
         consumables = state.consumables or list()
 
-        print(f'\rPlayer: {player.health}HP')
+        print(f'\rPlayer: {player.health}HP {
+              player.experience}XP {player.level}LVL')
 
         for k in range(player.position.y - radius, player.position.y + radius + 1):
             row = []
@@ -96,20 +116,41 @@ def main():
         game = create_game(game_id, test_config)
 
         player = list(game.objects.find_by_tag('player'))[0]
+        
+        if not isinstance(player, Player):
+            raise Exception('Player is invalid')
 
         async def input_direction():
             value = await async_input('Enter direction (left, up, right, down): ')
             try:
-                game.send_to_input(InputModel(
-                    player_name=player.name, direction=Direction(value)))
+                game.send_to_input(InputActionModel(
+                    player_name=player.name, input=Direction(value)))
             except:
-                game.send_to_input(InputModel(
-                    player_name=player.name, direction=None))
+                game.send_to_input(InputActionModel(
+                    player_name=player.name, input=None))
+
+        async def input_select():
+            upgrades = list(player.upgrades.get_next_upgrades())
+            random.shuffle(upgrades)
+            for ind, upg in enumerate(upgrades[:4]):
+                print(f'[{ind}] Upgrade {upg.name}')
+            value = await async_input('Select PowerUp (0, 1, 2, 3): ')
+
+            upgrade_id = upgrades[int(value)].id
+
+            try:
+                game.send_to_input(InputSelectModel(
+                    player_name=player.name, input=upgrade_id))
+            except:
+                game.send_to_input(InputSelectModel(
+                    player_name=player.name, input=None))
 
         def output_listener(state: GameModel):
             if state.wait_for and state.wait_for.player == player.name:
                 if state.wait_for.type == InputType.ACTION:
                     asyncio.create_task(input_direction())
+                elif state.wait_for.type == InputType.POWER_UP:
+                    asyncio.create_task(input_select())
             else:
                 render_game(game.get_state())
 

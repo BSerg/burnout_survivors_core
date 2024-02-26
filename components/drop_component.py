@@ -2,7 +2,7 @@ from components.component import Component
 from objects.game_object import GameObject
 from components.position_component import PositionComponent
 import random
-from game_context import get_game
+from game_context import get_current_game
 
 
 class DropComponent(Component):
@@ -33,5 +33,5 @@ class DropComponent(Component):
         drop_object = self._drop_object
         drop_object.require_component(
             PositionComponent).position = self._game_object.require_component(PositionComponent).position
-        get_game().objects.add(drop_object)
+        get_current_game().objects.add(drop_object)
         self._drop_object = None

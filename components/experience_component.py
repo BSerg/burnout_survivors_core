@@ -1,6 +1,6 @@
 from components.component import Component
 from components.position_component import PositionComponent
-from game_context import get_game
+from game_context import get_current_game
 from objects.consumables.exp_consumable import ExpConsumable
 from objects.game_object import GameObject
 from utils.game import get_points_in_radius, Point
@@ -22,6 +22,14 @@ class ExperienceComponent(Component):
     @property
     def level(self) -> int:
         return self._level
+    
+    @property
+    def level_map(self) -> list[float]:
+        return self._level_map
+    
+    @level_map.setter
+    def level_map(self, value: list[float]) -> None:
+        self._level_map = value
 
     @property
     def consume_radius(self) -> float:
@@ -50,12 +58,12 @@ class ExperienceComponent(Component):
     def increase_exp(self, value: float) -> None:
         _value = self._consume_rate * value
         self._exp += _value
-        get_game().log(f'{self._game_object.name} got {_value}XP')
+        get_current_game().log(f'{self._game_object.name} got {_value}XP')
 
         while self.is_next_level_available():
             self._exp -= self._level_map[self._level]
             self._level += 1
-            get_game().log(
+            get_current_game().log(
                 f'{self._game_object.name} got level {self._level}')
 
     def consume_exp_in_radius(self):
@@ -66,9 +74,9 @@ class ExperienceComponent(Component):
             point = Point(position_component.x + offset.x,
                           position_component.y + offset.y)
 
-            for obj in get_game().objects.find_by_position(point.x, point.y):
+            for obj in get_current_game().objects.find_by_position(point.x, point.y):
                 if isinstance(obj, ExpConsumable) and not obj.consumed:
                     self.increase_exp(obj.value)
                     obj.consumed = True
-                    get_game().log(
+                    get_current_game().log(
                         f'{obj.name} has been consumed by {self._game_object.name}')

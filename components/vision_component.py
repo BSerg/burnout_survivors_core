@@ -1,6 +1,6 @@
 from components.component import Component
 from components.position_component import PositionComponent
-from game_context import get_game
+from game_context import get_current_game
 from objects.game_object import GameObject
 from utils.game import get_points_in_radius
 
@@ -26,7 +26,7 @@ class VisionComponent(Component):
             if x == position_component.x and y == position_component.y:
                 continue
 
-            objs = set(get_game().objects.find_by_position(x, y))
+            objs = set(get_current_game().objects.find_by_position(x, y))
 
             if not visible_objects:
                 visible_objects = objs

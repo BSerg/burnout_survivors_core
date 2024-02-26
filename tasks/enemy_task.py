@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from tasks import GameTask
-from game_context import get_game
+from game_context import get_current_game
 
 if TYPE_CHECKING:
     from game import Game
@@ -17,9 +17,9 @@ class EnemyTask(GameTask):
         pass
 
     async def update(self):
-        enemies = get_game().objects.find_by_tag('enemy')
+        enemies = get_current_game().objects.find_by_tag('enemy')
 
         for enemy in enemies:
             await enemy.update()
 
-        return get_game().get_state()
+        return get_current_game().get_state()

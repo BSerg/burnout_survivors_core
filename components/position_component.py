@@ -4,7 +4,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from components.component import Component
-from game_context import get_game
+from game_context import get_current_game
 from utils.game import Point
 
 if TYPE_CHECKING:
@@ -18,8 +18,8 @@ class PositionComponent(Component):
 
     # TODO optimize
     def _update_manager_position(self):
-        get_game().objects.remove(self._game_object.name)
-        get_game().objects.add(self._game_object)
+        get_current_game().objects.remove(self._game_object.name)
+        get_current_game().objects.add(self._game_object)
 
     @property
     def position(self) -> Point:

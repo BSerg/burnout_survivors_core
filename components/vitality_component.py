@@ -3,7 +3,7 @@ from __future__ import annotations
 from components.component import Component
 from components.status_component import Status, StatusComponent
 from objects.game_object import GameObject
-from game_context import get_game
+from game_context import get_current_game
 
 
 class VitalityComponent(Component):
@@ -53,10 +53,10 @@ class VitalityComponent(Component):
             status_component.status = Status.DAMAGED.value
 
         if self._health > 0:
-            get_game().log(
+            get_current_game().log(
                 f'{self._game_object.name} got damage {value}HP')
         else:
-            get_game().log(f'{self._game_object.name} is dead')
+            get_current_game().log(f'{self._game_object.name} is dead')
 
     def increase_max_health(self, value: float) -> None:
         self._max_health += value

@@ -4,8 +4,8 @@ from components.experience_component import ExperienceComponent
 
 
 class ExpConsumeRadiusUpgrade(Upgrade):
-    def __init__(self, name: str, player: Player, value: float) -> None:
-        super().__init__(name, player, set(['upgrade', 'exp_consume_radius']))
+    def __init__(self, name: str, player: Player, parent: Upgrade | None, value: float) -> None:
+        super().__init__(name, player, parent)
         self._value = value
 
     def can_be_applied(self) -> bool:
@@ -18,8 +18,8 @@ class ExpConsumeRadiusUpgrade(Upgrade):
 
 
 class ExpConsumeRateUpgrade(Upgrade):
-    def __init__(self, name: str, player: Player, value: float) -> None:
-        super().__init__(name, player, set(['upgrade', 'exp_consume_rate']))
+    def __init__(self, name: str, player: Player, parent: Upgrade | None, value: float) -> None:
+        super().__init__(name, player, parent)
         self._value = value
 
     def can_be_applied(self) -> bool:

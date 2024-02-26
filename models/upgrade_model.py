@@ -7,7 +7,6 @@ from pydantic import BaseModel
 
 class UpgradeConfig(BaseModel):
     name: str
-    tags: set[str]
     next_upgrades: list[UpgradeConfig]
 
 

@@ -3,7 +3,7 @@ from components.melee_component import MeleeComponent
 from components.move_component import MoveComponent
 from components.position_component import PositionComponent
 from components.vitality_component import VitalityComponent
-from game_context import get_game
+from game_context import get_current_game
 from models.input_model import Direction
 from objects.game_object import GameObject
 from utils.game import Point
@@ -49,7 +49,7 @@ class PlayerComponent(Component):
                                  y=position_component.y + 1)
 
         if target_point:
-            for obj in get_game().objects.find_by_position(target_point.x, target_point.y):
+            for obj in get_current_game().objects.find_by_position(target_point.x, target_point.y):
                 if obj.has_tags('enemy'):
                     obj_vitality_component = obj.find_component(
                         VitalityComponent)

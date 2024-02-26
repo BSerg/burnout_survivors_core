@@ -6,8 +6,8 @@ from objects.upgrades.upgrade import Upgrade
 
 
 class HealthUpgrade(Upgrade):
-    def __init__(self, name: str, player: Player, value: float = 0) -> None:
-        super().__init__(name, player, set(['upgrade', 'health']))
+    def __init__(self, name: str, player: Player, parent: Upgrade | None, value: float = 0) -> None:
+        super().__init__(name, player, parent)
         self._value: float = value
 
     def can_be_applied(self) -> bool:
@@ -21,9 +21,8 @@ class HealthUpgrade(Upgrade):
 
 
 class HealRateUpgrade(Upgrade):
-    def __init__(self, name: str, player: Player, value: float = 1) -> None:
-        super().__init__(name,
-                         player, set(['upgrade', 'heal_rate']))
+    def __init__(self, name: str, player: Player, parent: Upgrade | None, value: float = 1) -> None:
+        super().__init__(name, player, parent)
         self._value = value
 
     def can_be_applied(self) -> bool:

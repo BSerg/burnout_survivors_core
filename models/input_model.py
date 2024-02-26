@@ -1,8 +1,9 @@
 from enum import Enum
-from typing import Optional
+from typing import Optional, Generic, TypeVar
 
 from pydantic import BaseModel
 
+T = TypeVar('T')
 
 class Direction(Enum):
     LEFT = 'left'
@@ -11,6 +12,13 @@ class Direction(Enum):
     DOWN = 'down'
 
 
-class InputModel(BaseModel):
+class InputModel(BaseModel, Generic[T]):
     player_name: str
-    direction: Optional[Direction]
+    input: Optional[T]
+
+class InputActionModel(InputModel[Direction]):
+    player_name: str
+
+
+class InputSelectModel(InputModel[str]):
+    player_name: str

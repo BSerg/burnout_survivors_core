@@ -4,7 +4,7 @@ import asyncio
 import random
 import uuid
 from enum import Enum
-from typing import Callable, Type
+from typing import Callable, Type, Any
 
 from game_object_manager import GameObjectManager
 from models.game_model import GameModel

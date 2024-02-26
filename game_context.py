@@ -29,5 +29,5 @@ class GameContext:
         return game_id.get()
 
 
-def get_game() -> Game:
+def get_current_game() -> Game:
     return GameManager.get_game(game_id.get())
